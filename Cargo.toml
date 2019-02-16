@@ -1,0 +1,7 @@
+[package]
+name = "walk-sim"
+version = "0.1.0"
+authors = ["Jacek Chmiel <jacek@chmiel.cc>"]
+edition = "2018"
+
+[dependencies]
