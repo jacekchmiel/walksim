@@ -1,4 +1,5 @@
 use core::f32::consts::PI;
+use log::info;
 use nalgebra::geometry::Isometry3;
 use nalgebra::{Point3, Vector3};
 use ncollide3d::shape::{ConvexHull, Cuboid, ShapeHandle};
@@ -18,6 +19,9 @@ const LEG_COXA: f32 = 0.5;
 const LEG_FEMUR: f32 = 0.5;
 const LEG_TIBIA: f32 = 1.0;
 const LEG_COLLIDER_MARGIN: f32 = 0.035;
+
+mod logger;
+mod panic_hook;
 
 // pub struct Servo {
 //     target: f32,
@@ -171,9 +175,14 @@ fn make_body(world: &mut World<f32>) -> HexapodMultibody {
 }
 
 fn main() {
-    let mut testbed = Testbed::new_empty();
+    // console!(log, "Initializing simulation...");
+    panic_hook::set_once();
+    logger::init();
+    info!("Hello!");
 
+    let mut testbed = Testbed::new_empty();
     let mut world = World::new();
+
     world.set_gravity(Vector3::y() * -9.81);
 
     let ground_size = 50.0;
@@ -188,15 +197,18 @@ fn main() {
         hexapod.body_handle.0,
         Point3::new(255.0 / 255.0, 96.0 / 255.0, 33.0 / 255.0),
     );
+
     testbed.set_world(world);
     testbed.look_at(Point3::new(-10.0, 4.0, -10.0), Point3::new(0.0, 0.0, 0.0));
     testbed.add_callback(move |world, _, _| {
         let mut world = world.get_mut();
         for i in 0..6 {
-            for j in 0..3 {
+            for j in 1..3 {
                 hexapod.set_v(world.deref_mut(), i, j);
             }
         }
     });
+
+    info!("Starting testbed...");
     testbed.run();
 }

@@ -9,3 +9,10 @@ nalgebra   = "0.17"
 ncollide3d = "0.18"
 nphysics3d = "0.10"
 nphysics_testbed3d = "0.4"
+stdweb = "0.4.14"
+cfg-if = "0.1.6"
+log = { version = "0.4", features = ["std"] }
+env_logger = "0.6.0"
+
+[profile.release]
+debug = true
