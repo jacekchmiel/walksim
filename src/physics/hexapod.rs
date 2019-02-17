@@ -231,11 +231,10 @@ impl HexapodModel {
                 .part_handle();
 
             legs.push(vec![coxa_handle, femur_handle, tibia_handle]);
-            servos.push(vec![
-                ServoModel::new(world, body_handle.0, coxa_handle.1),
-                ServoModel::new(world, body_handle.0, femur_handle.1),
-                ServoModel::new(world, body_handle.0, tibia_handle.1)
-            ]);
+            let c = ServoModel::new(body_handle.0, coxa_handle.1, -hexapod.base_leg_angle(i));
+            let f = ServoModel::new(body_handle.0, femur_handle.1, 0.0).with_target(-3.14 / 4.0);
+            let t = ServoModel::new(body_handle.0, tibia_handle.1, 0.0).with_target(3.14 * 0.75);
+            servos.push(vec![c, f, t]);
         }
 
         HexapodModel { body_handle, legs, servos }
@@ -243,12 +242,12 @@ impl HexapodModel {
 
     fn make_leg_collider(h: &HexapodGeometry, segment: LegSegment) -> ColliderDesc<f32> {
         // Margin required so leg segments will not collide with each other
-        let margin = h.leg_r / 3.0;
+        let margin = h.leg_r * 1.5;
 
         let len = h.segment_len(segment);
 
         let shape = ShapeHandle::new(Cuboid::new(Vector3::new(
-            len / 2.0 - margin * 2.0,
+            len / 2.0 - margin,
             h.leg_r / 2.0,
             h.leg_r / 2.0,
         )));
@@ -266,6 +265,15 @@ impl HexapodModel {
             LegSegment::Tibia => 2,
         };
         &self.servos[leg.as_usize()][s]
+    }
+
+    pub fn servo_mut(&mut self, leg: Leg, segment: LegSegment) -> &mut ServoModel {
+        let s = match segment {
+            LegSegment::Coxa => 0,
+            LegSegment::Femur => 1,
+            LegSegment::Tibia => 2,
+        };
+        &mut self.servos[leg.as_usize()][s]
     }
 }
 
