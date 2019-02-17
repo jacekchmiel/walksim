@@ -23,8 +23,6 @@ pub trait Simulate {
     fn simulation_step(&self, world: &mut World<f32>);
 }
 
-mod hexapod;
-mod servo;
+pub mod hexapod;
+pub mod servo;
 
-pub use hexapod::{HexapodModel, HexapodGeometry, HexapodGeometryBuilder};
-pub use servo::ServoModel;

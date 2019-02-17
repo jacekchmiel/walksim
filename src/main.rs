@@ -50,7 +50,11 @@ use physics::Simulate;
 //     }
 // }
 
-use physics::{init_world, HexapodModel, HexapodGeometry};
+use physics::{init_world, hexapod::{HexapodModel, HexapodGeometry, Leg, LegSegment}};
+
+struct Simulator {
+
+}
 
 fn main() {
     // console!(log, "Initializing simulation...");
@@ -71,8 +75,16 @@ fn main() {
 
     testbed.set_world(world);
     testbed.look_at(Point3::new(-10.0, 4.0, -10.0), Point3::new(0.0, 0.0, 0.0));
-    testbed.add_callback(move |world, _, _| {
+    testbed.add_callback(move |world, _, time| {
         let mut world = world.get_mut();
+        let sine = (TWO_PI*time).sin();
+        // let cosine = time.cos();
+        for i in 0..6 {
+            let leg = Leg::from_usize(i).unwrap();
+            let val = if i % 2 == 0 { sine } else { -sine };
+            hexapod.servo(leg, LegSegment::Femur).set_target(0.25 * PI * val);
+            hexapod.servo(leg, LegSegment::Tibia).set_target(-0.25 * PI * val + PI * 0.5);
+        }
         hexapod.simulation_step(world.deref_mut());
     });
 
