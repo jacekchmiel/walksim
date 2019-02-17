@@ -1,3 +1,4 @@
+use core::cell::Cell;
 use core::f32::consts::PI;
 use nphysics3d::joint::RevoluteJoint;
 use std::cmp::min;
@@ -12,7 +13,7 @@ pub struct ServoModel {
     base_handle: BodyHandle,
     link_id: usize,
 
-    target: f32,
+    target: Cell<f32>,
     origin: f32,
 }
 
@@ -22,13 +23,13 @@ impl ServoModel {
             base_handle,
             link_id,
 
-            target: 0.0,
+            target: Cell::new(0.0),
             origin
         }
     }
 
-    pub fn set_target(&mut self, v: f32) {
-        self.target = v;
+    pub fn set_target(&self, v: f32) {
+        self.target.set(v);
     }
 
     pub fn with_target(mut self, v: f32) -> Self {
@@ -54,7 +55,8 @@ impl Simulate for ServoModel {
             .downcast_mut::<RevoluteJoint<f32>>()
             .unwrap();
 
-        let raw_angle_diff = (self.target + self.origin) - joint.angle();
+        let target = self.target.get();
+        let raw_angle_diff = (target + self.origin) - joint.angle();
 
         // normalize angle diff
         let mut norm_angle_diff = raw_angle_diff;
